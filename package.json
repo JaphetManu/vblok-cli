@@ -1,5 +1,5 @@
 {
-	"name": "vblok",
+	"name": "vblok-cli",
 	"version": "1.0.0",
 	"description": "cli for vue projects with storyblok cms",
 	"main": "bin/index.js",
