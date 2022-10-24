@@ -1,8 +1,8 @@
 import arg from 'arg';
 
-import type { Args, RawOptions } from '../types';
+import type { Args, Options } from '../types';
 
-export function parseArgumentsIntoOptions(rawArgs: Args): RawOptions {
+export function parseArgumentsIntoOptions(rawArgs: Args): Options {
 	const args = arg(
 		{
 			'--storybook': Boolean,

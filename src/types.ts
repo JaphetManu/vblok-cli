@@ -1,5 +1,5 @@
 export type Args = string[];
-export type RawOptions = {
+export type Options = {
 	dir: string;
 	name: string;
 	storybook: Boolean;

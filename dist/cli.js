@@ -1,5 +1,8 @@
+import chalk from 'chalk';
+import Listr from 'listr';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import * as fs from 'fs';
-import * as path from 'path';
 import arg from 'arg';
 
 function renameFile(templateFileName, fileName) {
@@ -14,11 +17,12 @@ function renameFile(templateFileName, fileName) {
 function capitalizeFirstLetter(wordString) {
     return wordString[0].toUpperCase() + wordString.slice(1);
 }
-async function copyTemplateFiles(targetDirPath, fileName, includeStorybook) {
-    const componentDir = targetDirPath.split('/')[1];
-    const sourceDirPath = path.join('./src/templates');
+async function copyTemplateFiles(sourceDir, targetDir, fileName, includeStorybook) {
+    const componentDir = targetDir.split('/')[targetDir.split('/').length - 2];
     let cssClassName = '';
     let storybookTitle = '';
+    console.log(componentDir);
+    console.log(fileName);
     switch (componentDir) {
         case 'base':
             cssClassName = 'c-' + fileName.toLowerCase();
@@ -49,18 +53,37 @@ async function copyTemplateFiles(targetDirPath, fileName, includeStorybook) {
         }
     }
     const templateFileNames = includeStorybook
-        ? fs.readdirSync(sourceDirPath)
-        : fs.readdirSync(sourceDirPath).filter((file) => !file.includes('stories.js'));
-    fs.mkdirSync(targetDirPath, { recursive: true });
+        ? fs.readdirSync(sourceDir)
+        : fs.readdirSync(sourceDir).filter((file) => !file.includes('stories.js'));
+    fs.mkdirSync(targetDir, { recursive: true });
     for (const file of templateFileNames) {
         const targetFileName = renameFile(file, fileName);
         const fileContents = fs
-            .readFileSync(`${sourceDirPath}/${file}`, 'utf8')
+            .readFileSync(`${sourceDir}/${file}`, 'utf8')
             .replace(/FILENAME/g, fileName)
             .replace(/CSS_CLASS/g, cssClassName)
             .replace(/STORYBOOK_TITLE/g, storybookTitle)
             .replace(/STORYBOOK_NAME/g, capitalizeFirstLetter(fileName));
-        fs.writeFileSync(`${targetDirPath}/${targetFileName}`, fileContents);
+        fs.writeFileSync(`${targetDir}/${targetFileName}`, fileContents);
+    }
+}
+
+async function createFiles(options) {
+    const currentFileUrl = import.meta.url;
+    const sourceDir = path.resolve(decodeURI(fileURLToPath(currentFileUrl)), '../../templates');
+    const targetDir = `${process.cwd()}/components/${options.dir}/${options.name}`;
+    const tasks = new Listr([
+        {
+            title: 'Copy files',
+            task: () => copyTemplateFiles(sourceDir, targetDir, options.name, options.storybook),
+        },
+    ]);
+    try {
+        await tasks.run();
+        console.log('%s Files are ready', chalk.green.bold('DONE'));
+    }
+    catch (error) {
+        console.log('%s Error occurred', chalk.red.bold('ERROR'));
     }
 }
 
@@ -78,10 +101,9 @@ function parseArgumentsIntoOptions(rawArgs) {
     };
 }
 
-function cli(args) {
+async function cli(args) {
     const options = parseArgumentsIntoOptions(args);
-    const targetDir = `components/${options.dir}`;
-    copyTemplateFiles(targetDir, options.name, options.storybook);
+    await createFiles(options);
 }
 
 export { cli };

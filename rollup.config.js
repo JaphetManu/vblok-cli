@@ -1,4 +1,5 @@
 import typescript from '@rollup/plugin-typescript';
+import autoExternal from 'rollup-plugin-auto-external';
 
 export default {
 	input: 'src/cli.ts',
@@ -6,5 +7,5 @@ export default {
 		dir: 'dist',
 		format: 'es',
 	},
-	plugins: [typescript()],
+	plugins: [autoExternal(), typescript({ exclude: ['templates/**'] })],
 };

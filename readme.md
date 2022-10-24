@@ -1,6 +1,6 @@
 # vblok-cli
 
-A simple cli to dynamically created Vue, Scss and Storybook files for new components or modules in Vue.js and Nuxt.js projects. It is still in early development and will later be optimized to automatically serve storyblok cms content without having to copy & pasty a lot of boilerplate code.
+A simple cli to dynamically created Vue, Scss and Storybook files for new components or modules in proejcts based on VueJS. It is still in early development and will have more features coming in the near future.
 
 ## Installation
 
